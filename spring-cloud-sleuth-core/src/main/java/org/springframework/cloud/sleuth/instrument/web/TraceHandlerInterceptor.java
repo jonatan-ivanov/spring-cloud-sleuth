@@ -137,11 +137,11 @@ public class TraceHandlerInterceptor extends HandlerInterceptorAdapter {
 		}
 		Span span = getRootSpanFromAttribute(request);
 		if (ex != null) {
-			String errorMsg = ExceptionUtils.getExceptionMessage(ex);
 			if (log.isDebugEnabled()) {
+				String errorMsg = ExceptionUtils.getExceptionMessage(ex);
 				log.debug("Adding an error tag [" + errorMsg + "] to span " + span + "");
 			}
-			getTracer().addTag(Span.SPAN_ERROR_TAG_NAME, errorMsg);
+			getTracer().setThrowable(ex);
 		}
 		if (getNewSpanFromAttribute(request) != null) {
 			if (log.isDebugEnabled()) {

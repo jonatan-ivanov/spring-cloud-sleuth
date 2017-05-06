@@ -64,6 +64,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  *
  * @author Spencer Gibb
  * @author Marcin Grzejszczak
+ * @author Jonatan Ivanov
  * @since 1.0.0
  */
 /*
@@ -156,6 +157,8 @@ public class Span implements SpanContext {
 	private final Span savedSpan;
 	@JsonIgnore
 	private final Map<String,String> baggage;
+	@JsonIgnore
+	private Throwable throwable;
 
 	// Null means we don't know the start tick, so fallback to time
 	@JsonIgnore
@@ -188,6 +191,7 @@ public class Span implements SpanContext {
 		this.startNanos = current.startNanos;
 		this.durationMicros = current.durationMicros;
 		this.baggage = current.baggage;
+		this.throwable = current.throwable;
 		this.savedSpan = savedSpan;
 	}
 
@@ -248,6 +252,7 @@ public class Span implements SpanContext {
 		this.logs.addAll(builder.logs);
 		this.baggage = new ConcurrentHashMap<>();
 		this.baggage.putAll(builder.baggage);
+		this.throwable = builder.throwable;
 	}
 
 	public static SpanBuilder builder() {
@@ -403,6 +408,23 @@ public class Span implements SpanContext {
 	 */
 	public List<Log> logs() {
 		return Collections.unmodifiableList(new ArrayList<>(this.logs));
+	}
+
+	/**
+	 * Attaches a {@link Throwable} to the span.
+	 */
+	public void setThrowable(Throwable throwable) {
+		this.throwable = throwable;
+	}
+
+	/**
+	 * Returns the {@link Throwable} attached to the span.
+	 * <p>
+	 * Might be null
+	 */
+	@JsonIgnore
+	public Throwable getThrowable() {
+		return this.throwable;
 	}
 
 	/**
@@ -662,6 +684,7 @@ public class Span implements SpanContext {
 		private List<Log> logs = new ArrayList<>();
 		private Map<String, String> tags = new LinkedHashMap<>();
 		private Map<String, String> baggage = new LinkedHashMap<>();
+		private Throwable throwable;
 
 		SpanBuilder() {
 		}
@@ -741,6 +764,11 @@ public class Span implements SpanContext {
 			return this;
 		}
 
+		public Span.SpanBuilder throwable(Throwable throwable) {
+			this.throwable = throwable;
+			return this;
+		}
+
 		public Span.SpanBuilder spanId(long spanId) {
 			this.spanId = spanId;
 			return this;
@@ -771,7 +799,7 @@ public class Span implements SpanContext {
 					.traceIdHigh(span.traceIdHigh).traceId(span.traceId)
 					.parents(span.getParents()).logs(span.logs).tags(span.tags)
 					.spanId(span.spanId).remote(span.remote).exportable(span.exportable)
-					.processId(span.processId).savedSpan(span.savedSpan);
+					.processId(span.processId).savedSpan(span.savedSpan).throwable(span.throwable);
 		}
 
 		public Span build() {

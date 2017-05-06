@@ -44,8 +44,6 @@ public class DefaultTracer implements Tracer {
 
 	private static final Log log = LogFactory.getLog(MethodHandles.lookup().lookupClass());
 
-	private static final int MAX_CHARS_IN_SPAN_NAME = 50;
-
 	private final Sampler defaultSampler;
 
 	private final Random random;
@@ -260,6 +258,15 @@ public class DefaultTracer implements Tracer {
 		Span s = getCurrentSpan();
 		if (s != null && s.isExportable()) {
 			s.tag(key, value);
+		}
+	}
+
+	@Override
+	public void setThrowable(Throwable throwable) {
+		Span s = getCurrentSpan();
+		if (s != null) {
+			s.setThrowable(throwable);
+			addTag(Span.SPAN_ERROR_TAG_NAME, ExceptionUtils.getExceptionMessage(throwable));
 		}
 	}
 

@@ -21,7 +21,6 @@ import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceKeys;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.cloud.sleuth.sampler.NeverSampler;
-import org.springframework.cloud.sleuth.util.ExceptionUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -52,7 +51,7 @@ public class TraceChannelInterceptor extends AbstractTraceChannelInterceptor {
 		} else if (currentSpan != null) {
 			currentSpan.logEvent(Span.CLIENT_RECV);
 		}
-		addErrorTag(ex);
+		setThrowable(ex);
 		getTracer().close(currentSpan);
 	}
 
@@ -114,7 +113,7 @@ public class TraceChannelInterceptor extends AbstractTraceChannelInterceptor {
 		Span spanFromHeader = getTracer().getCurrentSpan();
 		if (spanFromHeader!= null) {
 			spanFromHeader.logEvent(Span.SERVER_SEND);
-			addErrorTag(ex);
+			setThrowable(ex);
 		}
 		// related to #447
 		if (getTracer().isTracing()) {
@@ -122,9 +121,9 @@ public class TraceChannelInterceptor extends AbstractTraceChannelInterceptor {
 		}
 	}
 
-	private void addErrorTag(Exception ex) {
+	private void setThrowable(Exception ex) {
 		if (ex != null) {
-			getTracer().addTag(Span.SPAN_ERROR_TAG_NAME, ExceptionUtils.getExceptionMessage(ex));
+			getTracer().setThrowable(ex);
 		}
 	}
 

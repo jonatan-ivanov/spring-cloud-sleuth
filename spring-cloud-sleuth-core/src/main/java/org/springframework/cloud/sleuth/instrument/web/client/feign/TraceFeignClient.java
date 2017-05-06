@@ -29,7 +29,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.cloud.sleuth.instrument.web.HttpTraceKeysInjector;
-import org.springframework.cloud.sleuth.util.ExceptionUtils;
 import org.springframework.cloud.sleuth.util.SpanNameUtil;
 
 import feign.Client;
@@ -154,7 +153,7 @@ class TraceFeignClient implements Client {
 	private void logError(Exception e) {
 		Span span = getTracer().getCurrentSpan();
 		if (span != null) {
-			getTracer().addTag(Span.SPAN_ERROR_TAG_NAME, ExceptionUtils.getExceptionMessage(e));
+			getTracer().setThrowable(e);
 		}
 	}
 

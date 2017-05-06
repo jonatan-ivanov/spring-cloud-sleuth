@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
-import org.springframework.cloud.sleuth.util.ExceptionUtils;
 import org.springframework.core.task.AsyncListenableTaskExecutor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.AsyncClientHttpRequestFactory;
@@ -243,7 +242,7 @@ public class TraceAsyncRestTemplate extends AsyncRestTemplate {
 			if (log.isDebugEnabled()) {
 				log.debug("The callback failed - will close the span");
 			}
-			this.tracer.addTag(Span.SPAN_ERROR_TAG_NAME, ExceptionUtils.getExceptionMessage(ex));
+			this.tracer.setThrowable(ex);
 			finish();
 		}
 

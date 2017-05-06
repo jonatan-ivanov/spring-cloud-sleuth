@@ -103,6 +103,12 @@ public interface Tracer extends SpanAccessor {
 	void addTag(String key, String value);
 
 	/**
+	 * Attaches a {@link Throwable} to the current span
+	 * and adds the error tag ({@link Span#SPAN_ERROR_TAG_NAME}) if tracing is currently on.
+	 */
+	void setThrowable(Throwable throwable);
+
+	/**
 	 * Remove this span from the current thread, but don't stop it yet or send it for
 	 * collection. This is useful if the span object is then passed to another thread for
 	 * use with {@link Tracer#continueSpan(Span)}.
